@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BriefingRoomWeb", "Briefing
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BriefingRoomDesktop", "BriefingRoomDesktop\BriefingRoomDesktop.csproj", "{A3E437D2-8115-497B-9C98-AE8C90B15828}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BriefingRoomCommonGUI", "BriefingRoomCommonGUI\BriefingRoomCommonGUI.csproj", "{9CA124B5-6355-4C7B-B767-632159E2B2D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{A3E437D2-8115-497B-9C98-AE8C90B15828}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3E437D2-8115-497B-9C98-AE8C90B15828}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3E437D2-8115-497B-9C98-AE8C90B15828}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CA124B5-6355-4C7B-B767-632159E2B2D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CA124B5-6355-4C7B-B767-632159E2B2D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CA124B5-6355-4C7B-B767-632159E2B2D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CA124B5-6355-4C7B-B767-632159E2B2D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
