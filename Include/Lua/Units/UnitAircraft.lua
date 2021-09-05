@@ -10,8 +10,7 @@ $PROPSLUA$
                 }, -- end of ["AddPropAircraft"]
                 ["type"] = "$DCSID$",
                 ["unitId"] = $UNITID$,
-                ["psi"] = 0,
-                ["parking_id"] = "$PARKINGID$",
+                ["psi"] = 0,$PARKINGID$
                 ["y"] = $UNITY$,
                 ["x"] = $UNITX$,
                 ["name"] = "$NAME$",

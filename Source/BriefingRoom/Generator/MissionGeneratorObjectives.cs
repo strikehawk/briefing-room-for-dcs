@@ -201,7 +201,7 @@ namespace BriefingRoom4DCS.Generator
                 objectiveTargetUnitFamily, unitCount,
                 taskDB.TargetSide,
                 targetBehaviorDB.GroupLua[(int)targetDB.UnitCategory], targetBehaviorDB.UnitLua[(int)targetDB.UnitCategory],
-                objectiveCoordinates,
+                objectiveCoordinates, true,
                 null, groupFlags,
                 AircraftPayload.Default,
                 extraSettings.ToArray());
@@ -219,7 +219,7 @@ namespace BriefingRoom4DCS.Generator
                         airDefenseUnits,
                         taskDB.TargetSide, UnitFamily.VehicleAAA,
                         targetBehaviorDB.GroupLua[(int)targetDB.UnitCategory], targetBehaviorDB.UnitLua[(int)targetDB.UnitCategory],
-                        objectiveCoordinates + Coordinates.CreateRandom(100, 500),
+                        objectiveCoordinates + Coordinates.CreateRandom(100, 500), true,
                         null, groupFlags,
                         AircraftPayload.Default,
                         extraSettings.ToArray());

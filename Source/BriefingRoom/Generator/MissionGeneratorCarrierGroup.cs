@@ -99,7 +99,7 @@ namespace BriefingRoom4DCS.Generator
                     UnitMaker.AddUnitGroup(
                         new string[] { unitDB.ID }, Side.Ally, unitDB.Families[0],
                         "GroupShipCarrier", "UnitShip",
-                        shipCoordinates, DCSSkillLevel.Excellent, 0, AircraftPayload.Default,
+                        shipCoordinates, true, DCSSkillLevel.Excellent, 0, AircraftPayload.Default,
                         "GroupX2".ToKeyValuePair(shipDestination.X),
                         "GroupY2".ToKeyValuePair(shipDestination.Y),
                         "ILS".ToKeyValuePair(ilsChannel),
@@ -152,7 +152,8 @@ namespace BriefingRoom4DCS.Generator
                 UnitMaker.AddUnitGroup(
                     unitDB.Families[0], 1, Side.Ally,
                     "GroupStatic", "UnitStaticFOB",
-                    spawnPoint.Value.Coordinates, DCSSkillLevel.Excellent, 0, AircraftPayload.Default,
+                    spawnPoint.Value.Coordinates, true,
+                    DCSSkillLevel.Excellent, 0, AircraftPayload.Default,
                     "FOBCallSignIndex".ToKeyValuePair(carrierDictionary.Count + 1),
                     "RadioBand".ToKeyValuePair((int)RadioModulation.AM),
                     "RadioFrequency".ToKeyValuePair(GeneratorTools.GetRadioFrenquency(radioFrequency)));

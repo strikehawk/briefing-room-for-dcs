@@ -42,6 +42,11 @@ namespace BriefingRoom4DCS.Generator
         private readonly Dictionary<int, List<DBEntryAirbaseParkingSpot>> AirbaseParkingSpots;
 
         /// <summary>
+        /// List of available airbase runway spawns for each airbase.
+        /// </summary>
+        private readonly Dictionary<int, List<DBEntryAirbaseParkingSpot>> AirbaseRunwaySpawns;
+
+        /// <summary>
         /// List of available spawn points.
         /// </summary>
         private readonly List<DBEntryTheaterSpawnPoint> SpawnPoints;
@@ -60,6 +65,7 @@ namespace BriefingRoom4DCS.Generator
             TheaterDB = theaterDB;
 
             AirbaseParkingSpots = new Dictionary<int, List<DBEntryAirbaseParkingSpot>>();
+            AirbaseRunwaySpawns = new Dictionary<int, List<DBEntryAirbaseParkingSpot>>();
             SpawnPoints = new List<DBEntryTheaterSpawnPoint>();
 
             Clear();
@@ -91,17 +97,45 @@ namespace BriefingRoom4DCS.Generator
             return parkingSpot.Value.DCSID;
         }
 
+        /// <summary>
+        /// Returns a runway spawn spot for the given airbase.
+        /// </summary>
+        /// <param name="airbaseID">Internal ID of the airbase in DCS World</param>
+        /// <param name="spawnCoordinates">Coordinates of the selected spawn spot</param>
+        /// <returns>A parking spot ID, or -1 if none found or if airbase doesn't exist</returns>
+        internal int GetRunwaySpawn(int airbaseID, out Coordinates spawnCoordinates)
+        {
+            spawnCoordinates = new Coordinates();
+            if (!AirbaseRunwaySpawns.ContainsKey(airbaseID)) return -1;
+
+            DBEntryAirbaseParkingSpot? parkingSpot = AirbaseRunwaySpawns[airbaseID].FirstOrDefault();
+            if (!parkingSpot.HasValue) return -1;
+
+            spawnCoordinates = parkingSpot.Value.Coordinates;
+
+            return parkingSpot.Value.DCSID;
+        }
+
         internal void Clear()
         {
             AirbaseParkingSpots.Clear();
+            AirbaseRunwaySpawns.Clear();
             SpawnPoints.Clear();
 
             SpawnPoints.AddRange(TheaterDB.SpawnPoints);
             foreach (DBEntryAirbase airbase in TheaterDB.GetAirbases())
             {
-                if (airbase.ParkingSpots.Length < 1) continue;
-                if (AirbaseParkingSpots.ContainsKey(airbase.DCSID)) continue;
-                AirbaseParkingSpots.Add(airbase.DCSID, airbase.ParkingSpots.ToList());
+                // Parking spots
+                if (airbase.ParkingSpots.Length > 0 && !AirbaseParkingSpots.ContainsKey(airbase.DCSID))
+                {
+                    AirbaseParkingSpots.Add(airbase.DCSID, airbase.ParkingSpots.ToList());
+                }
+
+                // Runway spawns
+                if (airbase.RunwaySpawns.Length > 0 && !AirbaseRunwaySpawns.ContainsKey(airbase.DCSID))
+                {
+                    AirbaseRunwaySpawns.Add(airbase.DCSID, airbase.RunwaySpawns.ToList());
+                }
             }
         }
 

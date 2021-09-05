@@ -112,6 +112,7 @@ namespace BriefingRoom4DCS.Generator
                     Toolbox.RandomFrom(CommonCAPDB.UnitFamilies), groupSize, side,
                     CommonCAPDB.LuaGroup, CommonCAPDB.LuaUnit,
                     spawnPoint.Value.Coordinates,
+                    true,
                     Toolbox.RandomFrom(capLevelDB.SkillLevel), 0, AircraftPayload.AirToAir,
                     "GroupX2".ToKeyValuePair(groupDestination.X),
                     "GroupY2".ToKeyValuePair(groupDestination.Y));

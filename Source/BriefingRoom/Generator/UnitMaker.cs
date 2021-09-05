@@ -85,7 +85,8 @@ namespace BriefingRoom4DCS.Generator
         internal UnitMakerGroupInfo? AddUnitGroup(
             UnitFamily family, int unitCount, Side side,
             string groupLua, string unitLua,
-            Coordinates coordinates, DCSSkillLevel? skill = null,
+            Coordinates coordinates, bool randomizeCoordinates, 
+            DCSSkillLevel? skill = null,
             UnitMakerGroupFlags unitMakerGroupFlags = 0,
             AircraftPayload aircraftPayload = AircraftPayload.Default,
             params KeyValuePair<string, object>[] extraSettings)
@@ -102,13 +103,15 @@ namespace BriefingRoom4DCS.Generator
                 units.AddRange(airDefenseUnits);
             }
 
-            return AddUnitGroup(Toolbox.ShuffleArray(units.ToArray()), side, family, groupLua, unitLua, coordinates, skill, unitMakerGroupFlags, aircraftPayload, extraSettings);
+            return AddUnitGroup(Toolbox.ShuffleArray(units.ToArray()), side, family, groupLua, unitLua, coordinates, randomizeCoordinates, skill, unitMakerGroupFlags, aircraftPayload, extraSettings);
         }
 
         internal UnitMakerGroupInfo? AddUnitGroup(
             string[] units, Side side, UnitFamily unitFamily,
             string groupTypeLua, string unitTypeLua,
-            Coordinates coordinates, DCSSkillLevel? skill = null,
+            Coordinates coordinates, 
+            bool randomizeCoordinates, 
+            DCSSkillLevel? skill = null,
             UnitMakerGroupFlags unitMakerGroupFlags = 0,
             AircraftPayload aircraftPayload = AircraftPayload.Default,
             params KeyValuePair<string, object>[] extraSettings)
@@ -153,6 +156,7 @@ namespace BriefingRoom4DCS.Generator
                 coordinates,
                 aircraftPayload,
                 unitMakerGroupFlags,
+                randomizeCoordinates,
                 extraSettings
             );
 
@@ -233,6 +237,7 @@ namespace BriefingRoom4DCS.Generator
             Coordinates coordinates,
             AircraftPayload aircraftPayload,
             UnitMakerGroupFlags unitMakerGroupFlags,
+            bool randomizeCoordinates,
             params KeyValuePair<string, object>[] extraSettings
             )
         {
@@ -261,6 +266,7 @@ namespace BriefingRoom4DCS.Generator
                         coordinates,
                         aircraftPayload,
                         unitMakerGroupFlags,
+                        randomizeCoordinates,
                         extraSettings
                         );
 
@@ -285,13 +291,18 @@ namespace BriefingRoom4DCS.Generator
             Coordinates coordinates,
             AircraftPayload aircraftPayload,
             UnitMakerGroupFlags unitMakerGroupFlags,
+            bool randomizeCoordinates,
             params KeyValuePair<string, object>[] extraSettings)
         {
             string unitLuaTemplate = File.ReadAllText($"{BRPaths.INCLUDE_LUA_UNITS}{Toolbox.AddMissingFileExtension(unitTypeLua, ".lua")}");
             var groupHeading = GetGroupHeading(coordinates, extraSettings);
-            SetUnitCoordinatesAndHeading(unitDB, unitSetIndex, coordinates, groupHeading, out Coordinates unitCoordinates, out double unitHeading);
+            SetUnitCoordinatesAndHeading(unitDB, unitSetIndex, coordinates, groupHeading, randomizeCoordinates, out Coordinates unitCoordinates, out double unitHeading);
 
             string singleUnitLuaTable = new string(unitLuaTemplate);
+
+            string parkingLua = GetParkingIDLua(unitLuaIndex - 1, extraSettings);
+            GeneratorTools.ReplaceKey(ref singleUnitLuaTable, "ParkingID", parkingLua);
+
             foreach (KeyValuePair<string, object> extraSetting in extraSettings) // Replace custom values first so they override other replacements
                 if (extraSetting.Value is Array)
                     GeneratorTools.ReplaceKey(ref singleUnitLuaTable, extraSetting.Key, extraSetting.Value, unitSetIndex);
@@ -385,11 +396,13 @@ namespace BriefingRoom4DCS.Generator
         }
 
         private void SetUnitCoordinatesAndHeading(
-            DBEntryUnit unitDB, int unitIndex, Coordinates groupCoordinates, double groupHeading,
+            DBEntryUnit unitDB, int unitIndex, Coordinates groupCoordinates, double groupHeading, bool randomizeCoordinates,
             out Coordinates unitCoordinates, out double unitHeading)
         {
             unitCoordinates = groupCoordinates;
             unitHeading = groupHeading;
+
+            if (!randomizeCoordinates) return;
 
             if (unitDB.IsAircraft)
                 unitCoordinates = groupCoordinates + new Coordinates(AIRCRAFT_UNIT_SPACING, AIRCRAFT_UNIT_SPACING) * unitIndex;
@@ -433,6 +446,37 @@ namespace BriefingRoom4DCS.Generator
             return groupCoordinates + new Coordinates(
                 (offsetCoordinates.X * cosTheta) + (offsetCoordinates.Y * sinTheta),
                 (-offsetCoordinates.X * sinTheta) + (offsetCoordinates.Y * cosTheta));
+        }
+
+        private string GetParkingIDLua(int unitSetIndex, params KeyValuePair<string, object>[] extraSettings)
+        {
+            Dictionary<string, object> dicSettings = extraSettings.ToDictionary(kv => kv.Key, kv => kv.Value);
+
+            if (!dicSettings.TryGetValue("ParkingID", out object parkingIDValue))
+            {
+                return "";
+            }
+
+            if (dicSettings.TryGetValue("PlayerStartingType", out object startingType))
+            {
+                // No parking slot if player starts from the runway
+                if ((string)startingType == "TakeOff") return "";
+            }
+
+            int? parkingID = null;
+            if (parkingIDValue is Array)
+            {
+                Array parkingIDList = (Array)(parkingIDValue);
+                if (unitSetIndex < parkingIDList.GetLength(0))
+                    parkingID = (int)parkingIDList.GetValue(unitSetIndex);
+            }
+            else if (parkingIDValue is int)
+                parkingID = (int)parkingIDValue;
+
+            if (!parkingID.HasValue)
+                return "";
+
+            return $"[\"parking_id\"] = \"{parkingID.Value}\",\n";
         }
 
         public void Dispose()

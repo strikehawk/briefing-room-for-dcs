@@ -86,7 +86,8 @@ namespace BriefingRoom4DCS.Generator
                     Toolbox.RandomFrom(featureDB.UnitGroupFamilies), featureDB.UnitGroupSize.GetValue(),
                     groupSide,
                     featureDB.UnitGroupLuaGroup, featureDB.UnitGroupLuaUnit,
-                    coordinates, null, groupFlags, featureDB.UnitGroupPayload,
+                    coordinates, true, 
+                    null, groupFlags, featureDB.UnitGroupPayload,
                     extraSettings.ToArray());
                 if (
                     groupSide == Side.Ally &&

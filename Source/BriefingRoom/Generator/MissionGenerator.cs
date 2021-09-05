@@ -227,6 +227,8 @@ namespace BriefingRoom4DCS.Generator
                 imagesGenerator.GenerateKneeboardImage(mission);
             }
 
+            Console.WriteLine(mission.GetValue("COUNTRIESBLUE"));
+
             return mission;
         }
 

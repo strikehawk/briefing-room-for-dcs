@@ -73,23 +73,38 @@ namespace BriefingRoom4DCS.Generator
                     parkingSpotCoordinatesList.Add(carrier.Coordinates);
                 }
                 groupStartingCoords = carrier.Coordinates;
-                
+
                 //overwrite waypoints
                 flightWaypoints[0] = new Waypoint(flightWaypoints.First().Name, carrier.Coordinates);
-                flightWaypoints[flightWaypoints.Count -1] = new Waypoint(flightWaypoints.Last().Name, carrier.Coordinates);
+                flightWaypoints[flightWaypoints.Count - 1] = new Waypoint(flightWaypoints.Last().Name, carrier.Coordinates);
             }
             else // Land airbase take off
             {
-                Coordinates? lastParkingCoordinates = null;
-
-                for (int i = 0; i < flightGroup.Count; i++)
+                if (flightGroup.StartLocation == PlayerStartLocation.Runway)
                 {
-                    int parkingSpot = UnitMaker.SpawnPointSelector.GetFreeParkingSpot(playerAirbase.DCSID, out Coordinates parkingSpotCoordinates, lastParkingCoordinates);
-                    if (parkingSpot < 0) throw new BriefingRoomException("No parking spot found for player aircraft.");
-                    lastParkingCoordinates = parkingSpotCoordinates;
+                    int parkingSpot = UnitMaker.SpawnPointSelector.GetRunwaySpawn(playerAirbase.DCSID, out Coordinates spawnSpotCoordinates);
+                    if (parkingSpot < 0) throw new BriefingRoomException("No runway spawn found for player aircraft.");
+                    groupStartingCoords = spawnSpotCoordinates;
 
-                    parkingSpotIDsList.Add(parkingSpot);
-                    parkingSpotCoordinatesList.Add(parkingSpotCoordinates);
+                    for (int i = 0; i < flightGroup.Count; i++)
+                    {
+                        parkingSpotIDsList.Add(parkingSpot);
+                        parkingSpotCoordinatesList.Add(spawnSpotCoordinates);
+                    }
+                }
+                else
+                {
+                    Coordinates? lastParkingCoordinates = null;
+
+                    for (int i = 0; i < flightGroup.Count; i++)
+                    {
+                        int parkingSpot = UnitMaker.SpawnPointSelector.GetFreeParkingSpot(playerAirbase.DCSID, out Coordinates parkingSpotCoordinates, lastParkingCoordinates);
+                        if (parkingSpot < 0) throw new BriefingRoomException("No parking spot found for player aircraft.");
+                        lastParkingCoordinates = parkingSpotCoordinates;
+
+                        parkingSpotIDsList.Add(parkingSpot);
+                        parkingSpotCoordinatesList.Add(parkingSpotCoordinates);
+                    }
                 }
             }
 
@@ -99,6 +114,7 @@ namespace BriefingRoom4DCS.Generator
             UnitMakerGroupInfo? groupInfo = UnitMaker.AddUnitGroup(
                 Enumerable.Repeat(flightGroup.Aircraft, flightGroup.Count).ToArray(), Side.Ally, unitDB.Families[0],
                 groupLuaFile, "UnitAircraft", groupStartingCoords,
+                flightGroup.StartLocation != PlayerStartLocation.Runway,
                 skillLevel, unitMakerGroupFlags, flightGroup.Payload,
                 "PlayerStartingAction".ToKeyValuePair(GeneratorTools.GetPlayerStartingAction(flightGroup.StartLocation)),
                 "PlayerStartingType".ToKeyValuePair(GeneratorTools.GetPlayerStartingType(flightGroup.StartLocation)),
